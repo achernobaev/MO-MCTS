@@ -1,11 +1,11 @@
 package framework;
 
+import framework.utils.Evo;
+
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.EncodingUtils;
 import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
-
-import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,7 +21,7 @@ public class MOPTSPWeight extends AbstractProblem
 
     public MOPTSPWeight()
     {
-        super(EvoExec.genomeLength, 3);
+        super(Evo.genomeLength, 3);
     }
 
     public void evaluate(Solution solution)
@@ -31,7 +31,7 @@ public class MOPTSPWeight extends AbstractProblem
         {
             for(int j = 0; j < numberOfObjectives; ++j)
             {
-                EvoExec.currentWeights[i][j] = EvoExec.genes[genes[i]][j];
+                Evo.currentWeights[i][j] = Evo.genes[genes[i]][j];
             }
 
         }

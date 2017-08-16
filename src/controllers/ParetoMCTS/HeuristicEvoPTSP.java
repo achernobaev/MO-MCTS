@@ -1,9 +1,9 @@
 package controllers.ParetoMCTS;
 
-import framework.EvoExec;
 import framework.core.*;
 import framework.graph.Node;
 import framework.graph.Path;
+import framework.utils.Evo;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -52,7 +52,7 @@ public class HeuristicEvoPTSP implements HeuristicMO
 
     public HeuristicEvoPTSP(Game a_game, int[] bestRoute)
     {
-        this.targetWeights = EvoExec.currentWeights;
+        this.targetWeights = Evo.currentWeights;
         m_numTargets = targetWeights.length;
         MACRO_ACTION_LENGTH = ParetoMCTSParameters.MACRO_ACTION_LENGTH;
         ROLLOUT_DEPTH = ParetoMCTSParameters.ROLLOUT_DEPTH;

@@ -1,9 +1,9 @@
 package controllers.ParetoMCTS;
 
-import framework.EvoExec;
 import framework.core.*;
 import framework.graph.Node;
 import framework.graph.Path;
+import framework.utils.Evo;
 
 import java.util.*;
 
@@ -261,7 +261,7 @@ public class HeuristicPTSP implements HeuristicMO
         // + " " + EvoExec.currentWeights[currentSegment][1] + " " +
          //       EvoExec.currentWeights[currentSegment][2]);
 
-        return  EvoExec.currentWeights[currentSegment];
+        return  Evo.currentWeights[currentSegment];
     }
 
     public void setPlayoutInfo(PlayoutInfo a_pi)

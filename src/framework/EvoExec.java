@@ -4,13 +4,11 @@ import controllers.utils.Utils;
 import framework.core.Exec;
 import framework.core.PTSPConstants;
 import framework.core.PTSPView;
+import framework.utils.Evo;
 import framework.utils.JEasyFrame;
 import org.moeaframework.Executor;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
-
-import java.util.Random;
-
 
 /**
  * This class may be used to execute the game in timed or un-timed modes, with or without
@@ -21,13 +19,7 @@ import java.util.Random;
 @SuppressWarnings("unused")
 public class EvoExec extends Exec
 {
-    public static double[][] genes;
-    public static int nGenes; //number of different genes.
-    public static int genomeLength;
-    public static Random rnd;
     public static int generation;
-
-    public static double[][] currentWeights;
 
     public static double[] evaluateVisual()
     {
@@ -77,8 +69,7 @@ public class EvoExec extends Exec
         return new double[]{m_game.getTotalTime(),
                             PTSPConstants.INITIAL_FUEL - m_game.getShip().getRemainingFuel(),
                             m_game.getShip().getDamage()};
-        }
-
+    }
 
     public static double[] evaluate(int trials, int[] genes, int indIdx)
     {
@@ -111,7 +102,7 @@ public class EvoExec extends Exec
             {
                 ntrials++;
                 System.out.println("Not succeeded.");
-                printGenome(currentWeights);
+                printGenome(Evo.currentWeights);
 
                 return new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
 
@@ -139,32 +130,15 @@ public class EvoExec extends Exec
         }
 
         System.err.format(". Fitness: %.3f, %.3f, %.3f\n", totalResult[0],totalResult[1],totalResult[2]);
-        //printGenome(currentWeights);
+        //printGenome(Evo.currentWeights);
 
         return totalResult;
-    }
-
-    public static double[][] createNewRandomIndividual()
-    {
-        double [][] ind = new double[genomeLength][3];
-        for(int i = 0; i<genomeLength; ++i)
-        {
-            int idx = rnd.nextInt(nGenes);
-            double targets[] = new double[3];
-            for(int j = 0; j < targets.length; ++j)
-            {
-                targets[j] = genes[idx][j];
-            }
-            ind[i] = targets;
-        }
-
-        return ind;
     }
 
     public static void printGenome(double [][]genome)
     {
         System.out.print("{");
-        for(int i = 0; i<genomeLength; ++i)
+        for(int i = 0; i<Evo.genomeLength; ++i)
         {
             System.out.print("{");
             for(int j = 0; j < genome[0].length; ++j)
@@ -175,22 +149,21 @@ public class EvoExec extends Exec
         }
     }
 
-
     public static void evaluateMapRS(int trials, int evaluations)
     {
         double bestResult[] = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
-        double bestWeights[][] = new double[genomeLength][3];
+        double bestWeights[][] = new double[Evo.genomeLength][3];
 
         for(int ev = 0; ev < evaluations; ++ev)
         {
-            double[][] individual = createNewRandomIndividual();
-            currentWeights = individual;
+            double[][] individual = Evo.createNewRandomIndividual();
+            Evo.currentWeights = individual;
             double[] res = evaluate(trials, null, ev);
 
             int dominance = Utils.dominates(res, bestResult);
             if(dominance == 1) //bestResult dominates res... but we are MINIMIZING!
             {
-                for(int i = 0; i<genomeLength; ++i)
+                for(int i = 0; i<Evo.genomeLength; ++i)
                 {
                     for(int j = 0; j < bestResult.length; ++j)
                     {
@@ -209,14 +182,13 @@ public class EvoExec extends Exec
         System.out.format("Final best: %.3f, %.3f, %.3f\n", bestResult[0], bestResult[1], bestResult[2]);
         printGenome(bestWeights);
         System.out.println("}");
-
     }
 
     public static void evaluateMapNSGAII(int trials, int evaluations)
     {
-        currentWeights = new double[genomeLength][3];
-        for(int i = 0; i < genomeLength; ++i)
-            currentWeights[i] = new double[3];
+        Evo.currentWeights = new double[Evo.genomeLength][3];
+        for(int i = 0; i < Evo.genomeLength; ++i)
+            Evo.currentWeights[i] = new double[3];
 
         MOPTSPWeight.trials = trials;
         NondominatedPopulation result = new Executor()
@@ -235,11 +207,12 @@ public class EvoExec extends Exec
     }
 
     public static void evaluateMapStochHillCliim(int trials, int iterations, int numValues, int popSize)
-    {                                     currentWeights = new double[genomeLength][3];
-        for(int i = 0; i < genomeLength; ++i)
-            currentWeights[i] = new double[3];
+    {
+        Evo.currentWeights = new double[Evo.genomeLength][3];
+        for(int i = 0; i < Evo.genomeLength; ++i)
+            Evo.currentWeights[i] = new double[3];
 
-        Population pop = new Population(popSize, genomeLength, numValues);
+        Population pop = new Population(popSize, Evo.genomeLength, numValues);
         pop.initPopulationRndBiased();
 
         for(int it = 0; it < iterations; ++it)
@@ -273,9 +246,7 @@ public class EvoExec extends Exec
             //Needed for advance maps.
             moreMaps = m_game.advanceMap();
         }
-
     }
-
 
     /**
      * The main method. Several options are listed - simply remove comments to use the option you want.
@@ -292,7 +263,8 @@ public class EvoExec extends Exec
         {
             int mapIdx = Integer.parseInt(args[0]);
             m_mapNames = new String[]{allMaps[mapIdx]};
-        }else
+        }
+        else
         {
             m_mapNames = new String[]{"maps/ptsp_map01.map"}; //Set here the name of the map to play in.
         }
@@ -313,35 +285,11 @@ public class EvoExec extends Exec
         m_writeOutput = false; //Indicate if the actions must be saved to a file after the end of the game (the file name will be the current date and time)..
         m_verbose = true;
 
-        nGenes = 7;
-        int i = 0;
-
-        genes = new double[nGenes][3];
-
-        genes[i++] = new double[]{.33,.33,.33};
-        //genes[i++] = new double[]{0,0,1};
-        genes[i++] = new double[]{.1,.3,.6};
-        genes[i++] = new double[]{.1,.6,.3};
-
-        genes[i++] = new double[]{.3,.1,.6};
-        //genes[i++] = new double[]{0,.5,.5};
-        //genes[i++] = new double[]{0,1,0};
-        genes[i++] = new double[]{.3,.6,.1};
-        //genes[i++] = new double[]{.5,0,.5};
-        //genes[i++] = new double[]{.5,.5,0};
-        //genes[i++] = new double[]{1,0,0};
-        genes[i++] = new double[]{.6,.1,.3};
-        genes[i++] = new double[]{.6,.3,.1};
-
-        genomeLength = 14;
-        rnd = new Random();
-
+        Evo.init();
 
         //m_writeOutput = true;
         m_verbose = false; //hides additional output. runGamesStats prints anyway.
         int numTrials=10;  int numEvaluations = 100;
         runGamesStats(numTrials, numEvaluations);
-
     }
-
 }

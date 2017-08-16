@@ -1,6 +1,7 @@
 package framework;
 
 import controllers.utils.Utils;
+import framework.utils.Evo;
 
 import java.util.Random;
 
@@ -128,7 +129,7 @@ public class Population
                 {
                     for(int j = 0; j < 3; ++j)
                     {
-                        EvoExec.currentWeights[k][j] = EvoExec.genes[genes[k]][j];
+                        Evo.currentWeights[k][j] = Evo.genes[genes[k]][j];
                     }
                 }
 
